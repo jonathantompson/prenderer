@@ -1,0 +1,11 @@
+*~
+.DS_Store
+*.sdf
+ipch
+*.opensdf
+build
+*.asv
+prenderer.exe
+build_intermediate
+prenderer2
+prenderer.opensdf
