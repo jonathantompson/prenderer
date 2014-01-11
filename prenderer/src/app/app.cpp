@@ -207,7 +207,7 @@ namespace app {
       mat_nrot.transpose();
       Float4x4 mat_tmp;
       GeometryInstance* g = Renderer::g_renderer()->geometry_manager()->scene_root();
-      for (uint32_t i = 0; i < g->numChildren()-2; i++) {
+      for (uint32_t i = 0; i < g->numChildren()-3; i++) {
         if (i % 2) {
           Float4x4::multSIMD(mat_tmp, mat_prot, g->getChild(i)->mat());
         } else {
@@ -405,17 +405,37 @@ namespace app {
     model->mat().leftMultTranslation(0.0f, 8.0f, -3.0f);
     Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
 
+    model = Renderer::g_renderer()->geometry_manager()->createDynamicGeometry(
+      "PointCloud");
+    Renderer::g_renderer()->scene_root()->addChild(model);
+    point_cloud_ = model->geom();
+    point_cloud_->primative_type() = VERT_POINTS;
+    point_cloud_->point_size() = 1.0;
+    point_cloud_->addVertexAttribute(VERTATTR_POS);
+    point_cloud_->addVertexAttribute(VERTATTR_COL);
+    point_cloud_->pos().capacity(NUM_POINTS);
+    point_cloud_->pos().resize(NUM_POINTS);
+    point_cloud_->col().capacity(NUM_POINTS);
+    point_cloud_->col().resize(NUM_POINTS);
+    for (uint32_t i = 0; i < NUM_POINTS; i++) {
+      point_cloud_->pos()[i].set((*rand_uni_)(rand_eng_), 
+        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_));  // -1, 1
+      point_cloud_->col()[i].set(0.5*((*rand_uni_)(rand_eng_)+1), 
+        0.5*((*rand_uni_)(rand_eng_)+1), 0.5*((*rand_uni_)(rand_eng_)+1));
+    }
+    point_cloud_->sync();
+
     // Some lighting for testing: this also needs to be in an object manager
     // Spawn a bunch of point lights just above the ground
     LightPoint* light_point;
     for (uint32_t i = 0; i < NUM_PT_LIGHTS; i++) {
       // Assign a random starting velocity64
       light_vel_[i].set((*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_),
-        (*rand_uni_)(rand_eng_));
+        (*rand_uni_)(rand_eng_)); // -1, 1
       Float3::scale(light_vel_[i], PT_LIGHT_START_VEL);
       light_point = new LightPoint();
       light_point->pos_world().set((*rand_uni_)(rand_eng_), 
-        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_));
+        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_)); // -1, 1
       light_point->pos_world()[0] *= PT_LIGHT_ANIM_XDIM;
       light_point->pos_world()[1] *= PT_LIGHT_ANIM_YDIM;
       light_point->pos_world()[2] *= PT_LIGHT_ANIM_ZDIM;

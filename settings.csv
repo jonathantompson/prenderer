@@ -7,7 +7,7 @@
 //, Value: bool must be 0 or 1
  
 //, *********** APPLICATION SETTINGS ***********
-pause_physics,                    bool,      0
+pause_physics,                    bool,      1
 animate_lights,                   bool,      0
 animate_models,                   bool,      0
 force_slow_framerate,             bool,      0
@@ -43,7 +43,7 @@ spot_lights,                      bool,      1
 point_lights,                     bool,      1
 render_light_volumes,             bool,      0
 render_light_sources,             bool,      1
-dof_on,                           bool,      1
+dof_on,                           bool,      0
 dof_bounds,                       Float4,    0.15, 0.25, 3.0, 5.0
 ui_render_crosshairs,             bool,      1
 ui_crosshairs_size,               float,     0.025
