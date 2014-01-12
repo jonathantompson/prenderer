@@ -215,6 +215,17 @@ namespace app {
         }
         g->getChild(i)->mat().set(mat_tmp);
       }
+
+      Float3 cur_pos;
+      Float3 cur_offset;
+      for (uint32_t i = 0; i < point_cloud_->pos().size(); i++) {
+        cur_pos.set(point_cloud_start_pos_[i]);
+        cur_offset.set(point_cloud_vel_dir_[i]);
+        Float3::scale(cur_offset, 2.0f * sinf(t_physics));
+        Float3::add(cur_pos, cur_pos, cur_offset);
+        point_cloud_->pos()[i].set(cur_pos);
+      }
+      point_cloud_->resync();
     }
     if (animate_lights) {
       t_lights += dtf;
@@ -418,10 +429,17 @@ namespace app {
     point_cloud_->col().capacity(NUM_POINTS);
     point_cloud_->col().resize(NUM_POINTS);
     for (uint32_t i = 0; i < NUM_POINTS; i++) {
-      point_cloud_->pos()[i].set(2.0f*(*rand_uni_)(rand_eng_), 
-        2.0f*(*rand_uni_)(rand_eng_), 2.0f*(*rand_uni_)(rand_eng_));  // -1, 1
+      point_cloud_start_pos_[i].set((*rand_uni_)(rand_eng_), 
+        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_));  // -1 to +1
+      jtil::math::Float3::scale(point_cloud_start_pos_[i], SIZE_POINTS);
+
+      point_cloud_->pos()[i].set(point_cloud_start_pos_[i]);
       point_cloud_->col()[i].set(0.5f*((*rand_uni_)(rand_eng_)+1), 
         0.5f*((*rand_uni_)(rand_eng_)+1), 0.5f*((*rand_uni_)(rand_eng_)+1));
+
+      point_cloud_vel_dir_[i].set((*rand_uni_)(rand_eng_), 
+        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_));
+      point_cloud_vel_dir_[i].normalize();
     }
     point_cloud_->sync();
     model->apply_lighting() = false;

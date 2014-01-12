@@ -68,7 +68,7 @@ aa_type_enum,                     int,       2
 fxaa_depth_threshold,             float,     1.0
 fxaa_angle_threshold,             float,     10
 fxaa_hq_subpix_quality,           float,     1.0
-motion_blur_on,                   bool,      1
+motion_blur_on,                   bool,      0
 motion_blur_intensity,            float,     1
 motion_blur_max_samples,          int,       13
 motion_blur_depth_cutoff,         float,     5.0
