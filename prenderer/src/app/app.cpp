@@ -407,10 +407,10 @@ namespace app {
 
     model = Renderer::g_renderer()->geometry_manager()->createDynamicGeometry(
       "PointCloud");
+    model->mat().leftMultTranslation(0.0f, 0.0f, 15.0f);
     Renderer::g_renderer()->scene_root()->addChild(model);
     point_cloud_ = model->geom();
     point_cloud_->primative_type() = VERT_POINTS;
-    point_cloud_->point_size() = 1.0;
     point_cloud_->addVertexAttribute(VERTATTR_POS);
     point_cloud_->addVertexAttribute(VERTATTR_COL);
     point_cloud_->pos().capacity(NUM_POINTS);
@@ -418,12 +418,13 @@ namespace app {
     point_cloud_->col().capacity(NUM_POINTS);
     point_cloud_->col().resize(NUM_POINTS);
     for (uint32_t i = 0; i < NUM_POINTS; i++) {
-      point_cloud_->pos()[i].set((*rand_uni_)(rand_eng_), 
-        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_));  // -1, 1
-      point_cloud_->col()[i].set(0.5*((*rand_uni_)(rand_eng_)+1), 
-        0.5*((*rand_uni_)(rand_eng_)+1), 0.5*((*rand_uni_)(rand_eng_)+1));
+      point_cloud_->pos()[i].set(2.0f*(*rand_uni_)(rand_eng_), 
+        2.0f*(*rand_uni_)(rand_eng_), 2.0f*(*rand_uni_)(rand_eng_));  // -1, 1
+      point_cloud_->col()[i].set(0.5f*((*rand_uni_)(rand_eng_)+1), 
+        0.5f*((*rand_uni_)(rand_eng_)+1), 0.5f*((*rand_uni_)(rand_eng_)+1));
     }
     point_cloud_->sync();
+    model->apply_lighting() = false;
 
     // Some lighting for testing: this also needs to be in an object manager
     // Spawn a bunch of point lights just above the ground
