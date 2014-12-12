@@ -206,8 +206,8 @@ namespace app {
       Float4x4 mat_nrot(mat_prot);
       mat_nrot.transpose();
       Float4x4 mat_tmp;
-      GeometryInstance* g = Renderer::g_renderer()->geometry_manager()->scene_graph_root();
-      for (uint32_t i = 0; i < g->numChildren()-2; i++) {
+      GeometryInstance* g = Renderer::g_renderer()->geometry_manager()->scene_root();
+      for (uint32_t i = 0; i < g->numChildren()-3; i++) {
         if (i % 2) {
           Float4x4::multSIMD(mat_tmp, mat_prot, g->getChild(i)->mat());
         } else {
@@ -215,6 +215,17 @@ namespace app {
         }
         g->getChild(i)->mat().set(mat_tmp);
       }
+
+      Float3 cur_pos;
+      Float3 cur_offset;
+      for (uint32_t i = 0; i < point_cloud_->pos().size(); i++) {
+        cur_pos.set(point_cloud_start_pos_[i]);
+        cur_offset.set(point_cloud_vel_dir_[i]);
+        Float3::scale(cur_offset, 2.0f * sinf(t_physics));
+        Float3::add(cur_pos, cur_pos, cur_offset);
+        point_cloud_->pos()[i].set(cur_pos);
+      }
+      point_cloud_->resync();
     }
     if (animate_lights) {
       t_lights += dtf;
@@ -295,16 +306,22 @@ namespace app {
 
     model = Renderer::g_renderer()->geometry_manager()->makeTorusKnot(lred, 7, 64, 512);
     model->mat().leftMultTranslation(3.0f, 0.0f, 0.0f);
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
+
     model = Renderer::g_renderer()->geometry_manager()->makeSphere(25, 25, 1.0f, white);
     model->mat().leftMultTranslation(6.0f, -2.5f, 0.0f);
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
+
     model = Renderer::g_renderer()->geometry_manager()->makeSphere(25, 25, 1.0f, white);
     model->mat().leftMultTranslation(-6.0f, 5.0f, 0.0f);
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
 
     // Displacement quad test geometry
     model = Renderer::g_renderer()->geometry_manager()->makeDispQuad();
     model->mat().leftMultScale(4.5f, 4.6f, 5.0f);
     model->mat().leftMultTranslation(0.0f, -8.5f, 0.0f);
     model->mtrl().displacement_factor = 1.5f;
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
 
 #ifndef LOAD_JBIN_FILES
     model = Renderer::g_renderer()->geometry_manager()->loadModelFromFile(
@@ -317,6 +334,7 @@ namespace app {
 #endif
     model->mat().scaleMat(4, 4, 4);
     model->mat().leftMultTranslation(2.5f, 0, 2.5f);
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
 
 #ifndef LOAD_JBIN_FILES
     model = Renderer::g_renderer()->geometry_manager()->loadModelFromFile(
@@ -329,6 +347,7 @@ namespace app {
 #endif
     model->mat().leftMultScale(1.5f, 1.5f, 1.5f);
     model->mat().leftMultTranslation(0.0f, 5.0f, -3.0f);
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
 
     wrist_bone = renderer::GeometryManager::findGeometryInstanceByName(
       "./models/lib_hand/hand_palm_parent_medium_wrist.dae/carpals", model);
@@ -349,6 +368,7 @@ namespace app {
     model->mat().leftMultRotateYAxis((float)M_PI);
     model->mat().leftMultScale(0.75f, 0.75f, 0.75f);
     model->mat().leftMultTranslation(0.0f, -8.0f, 0.0f);
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
 
     robot_face = renderer::GeometryManager::findGeometryInstanceByName(
       "./models/robot-v2/robot-v2.dae/cabeza", model);
@@ -380,6 +400,7 @@ namespace app {
     math::Float4x4::rotateMatYAxis(model->mat(), (float)M_PI_2);
     model->mat().leftMultScale(0.04f, 0.04f, 0.04f);
     model->mat().leftMultTranslation(0.0f, -10.0f, 0.0f);
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
 
 #ifndef LOAD_JBIN_FILES
     model = Renderer::g_renderer()->geometry_manager()->loadModelFromFile(
@@ -393,7 +414,35 @@ namespace app {
     math::Float4x4::rotateMatXAxis(model->mat(), -(float)M_PI_2);
     model->mat().leftMultScale(1.5f, 1.5f, 1.5f);
     model->mat().leftMultTranslation(0.0f, 8.0f, -3.0f);
+    Renderer::g_renderer()->geometry_manager()->scene_root()->addChild(model);
 
+    model = Renderer::g_renderer()->geometry_manager()->createDynamicGeometry(
+      "PointCloud");
+    model->mat().leftMultTranslation(0.0f, 0.0f, 15.0f);
+    Renderer::g_renderer()->scene_root()->addChild(model);
+    point_cloud_ = model->geom();
+    point_cloud_->primative_type() = VERT_POINTS;
+    point_cloud_->addVertexAttribute(VERTATTR_POS);
+    point_cloud_->addVertexAttribute(VERTATTR_COL);
+    point_cloud_->pos().capacity(NUM_POINTS);
+    point_cloud_->pos().resize(NUM_POINTS);
+    point_cloud_->col().capacity(NUM_POINTS);
+    point_cloud_->col().resize(NUM_POINTS);
+    for (uint32_t i = 0; i < NUM_POINTS; i++) {
+      point_cloud_start_pos_[i].set((*rand_uni_)(rand_eng_), 
+        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_));  // -1 to +1
+      jtil::math::Float3::scale(point_cloud_start_pos_[i], SIZE_POINTS);
+
+      point_cloud_->pos()[i].set(point_cloud_start_pos_[i]);
+      point_cloud_->col()[i].set(0.5f*((*rand_uni_)(rand_eng_)+1), 
+        0.5f*((*rand_uni_)(rand_eng_)+1), 0.5f*((*rand_uni_)(rand_eng_)+1));
+
+      point_cloud_vel_dir_[i].set((*rand_uni_)(rand_eng_), 
+        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_));
+      point_cloud_vel_dir_[i].normalize();
+    }
+    point_cloud_->sync();
+    model->apply_lighting() = false;
 
     // Some lighting for testing: this also needs to be in an object manager
     // Spawn a bunch of point lights just above the ground
@@ -401,11 +450,11 @@ namespace app {
     for (uint32_t i = 0; i < NUM_PT_LIGHTS; i++) {
       // Assign a random starting velocity64
       light_vel_[i].set((*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_),
-        (*rand_uni_)(rand_eng_));
+        (*rand_uni_)(rand_eng_)); // -1, 1
       Float3::scale(light_vel_[i], PT_LIGHT_START_VEL);
       light_point = new LightPoint();
       light_point->pos_world().set((*rand_uni_)(rand_eng_), 
-        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_));
+        (*rand_uni_)(rand_eng_), (*rand_uni_)(rand_eng_)); // -1, 1
       light_point->pos_world()[0] *= PT_LIGHT_ANIM_XDIM;
       light_point->pos_world()[1] *= PT_LIGHT_ANIM_YDIM;
       light_point->pos_world()[2] *= PT_LIGHT_ANIM_ZDIM;

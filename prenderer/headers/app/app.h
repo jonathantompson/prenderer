@@ -18,6 +18,9 @@
 #define PT_LIGHT_START_VEL 10.0f
 #define PT_LIGHT_MAX_VEL 20.0f
 
+#define NUM_POINTS 100000
+#define SIZE_POINTS 10.0f
+
 #if defined(_WIN32)
 class DebugBuf;
 #endif
@@ -73,6 +76,10 @@ namespace app {
     jtil::renderer::GeometryInstance* robot_l_shoulder;
     jtil::renderer::GeometryInstance* robot_r_forearm;
     jtil::renderer::GeometryInstance* robot_l_forearm;
+
+    jtil::renderer::Geometry* point_cloud_;
+    jtil::math::Float3 point_cloud_start_pos_[NUM_POINTS];
+    jtil::math::Float3 point_cloud_vel_dir_[NUM_POINTS];
 
     void run();
     void init();

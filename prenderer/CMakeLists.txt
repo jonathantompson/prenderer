@@ -24,12 +24,12 @@ endif()
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 if(APPLE)
     message("Detected Apple")
-    SET(EXTRA_LIBS "-framework Cocoa -framework OpenGL -framework IOKit")
+    SET(EXTRA_LIBS "-framework Cocoa -framework OpenGL -framework IOKit -framework QuartzCore")
 elseif(MSVC)
     message( FATAL_ERROR, "Windows cmake is not supported.  Use visual studio." )
 endif(APPLE)
 
-set(LIB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../lib/MAC_OS_X)
+set(LIB_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/MAC_OS_X)
 
 set(JTIL_LIB_DIR ${root_BINARY_DIR}/jtil/)
 set(GLFW_LIB_DIR ${LIB_ROOT}/GLFW)
@@ -50,9 +50,9 @@ find_library(FREETYPE_LIB_OBJ NAMES freetype HINTS ${FREETYPE_LIB_DIR})
 # INCLUDE DIRECTORIES
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
-set(INCLUDE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../include/MAC_OS_X)
+set(INCLUDE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../include/MAC_OS_X)
 
-set(JTIL_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../jtil/include/)
+set(JTIL_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../jtil/include/)
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 # COMPILER FLAGS AND PREDEFINES

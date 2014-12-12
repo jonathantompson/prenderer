@@ -25,4 +25,14 @@ message( STATUS "Verbose Makefile: " ${root_VERBOSE_MAKEFILE} )
 
 set(CMAKE_VERBOSE_MAKEFILE root_VERBOSE_MAKEFILE)
 
+set(BUILD_JTIL_TESTS false)
+set(BUILD_JCL_TESTS false)
+set(BUILD_JTORCH_TESTS false)
+
+# subdirectories that are NOT in the current directory tree, you must specify
+# a build directory.  The build directories here will build a local copy of the
+# jtil and jcl libraries (this is OK, it just wastes disk space).
+add_subdirectory(../jtil "${CMAKE_CURRENT_BINARY_DIR}/jtil")
+add_subdirectory(../jcl "${CMAKE_CURRENT_BINARY_DIR}/jcl")
 add_subdirectory(prenderer)
+
