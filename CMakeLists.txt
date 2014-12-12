@@ -25,8 +25,4 @@ message( STATUS "Verbose Makefile: " ${root_VERBOSE_MAKEFILE} )
 
 set(CMAKE_VERBOSE_MAKEFILE root_VERBOSE_MAKEFILE)
 
-add_subdirectory(jtil)
-add_subdirectory(jcl)
 add_subdirectory(prenderer)
-add_subdirectory(tests)
-add_subdirectory(tests_jcl)
